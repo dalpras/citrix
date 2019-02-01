@@ -1,6 +1,9 @@
 Citrix API - PHP wrapper for Citrix GoToWebinar API
 ==================================================
-PHP wrapper for Citrix GoToWebinar API. The library allows simple OAuth or Direct authentication.
+[DEPRECATED!] PHP wrapper for Citrix GoToWebinar API. The library allows simple OAuth or Direct authentication.
+
+> GotoWebinar is now using an oauth2 client for connecting to theirs API.
+> This library has been superseded by the new [Citrix GoToWebinar Provider for OAuth 2.0 Client](https://github.com/dalpras/oauth2-gotowebinar) which provide better logic and capabilities.
 
 Install via Composer
 --------------------
@@ -11,19 +14,19 @@ composer require "dalpras/citrix"
 
 Authentication with Citrix
 --------------------------
-All you need in order to authenticate with Citrix's API is a consumer key, which you can obtain by registering at [Citrix Developer Center](https://goto-developer.logmeininc.com/user/me/apps).  
+All you need in order to authenticate with Citrix's API is a consumer key, which you can obtain by registering at [Citrix Developer Center](https://goto-developer.logmeininc.com/user/me/apps).
 
 After registering and creating your own application, you will get:
--   `ConsumerKey`, 
+-   `ConsumerKey`,
 -   `ConsumerSecret`
 
-You need the `ConsumerKey` for your application to authenticate with Citrix using this library.  
+You need the `ConsumerKey` for your application to authenticate with Citrix using this library.
 
-For authentication you can use a **Direct** or **OAuth** method. 
+For authentication you can use a **Direct** or **OAuth** method.
 The last allows you to not store the passwords in your application and interact with much more speed.
 
 If you want to use the **OAuth Authentication**, you need to set also a `CallbackURL` when you create the credentials for your APP.
-The `CallbackURL` is the address where the Citrix engine redirect the user after authentication. 
+The `CallbackURL` is the address where the Citrix engine redirect the user after authentication.
 The `CallbackURL` is the place where your application can get a `responseKey` for getting the **APP Authentication Credentials**.
 
 The principles of operation are explained in [How to Get an Access Token and Organizer Key](https://goto-developer.logmeininc.com/how-get-access-token-and-organizer-key).
@@ -35,40 +38,40 @@ The principles of operation are explained in [How to Get an Access Token and Org
 These are used to get responses from the *Citrix GoToWebinar Platform*.
 
 ### Direct Authentication
-In addition to the `ConsumerKey`, for **Direct Authentication** you need your `username` and `password`, 
+In addition to the `ConsumerKey`, for **Direct Authentication** you need your `username` and `password`,
 which is the one that you use to login into [GoToWebinar.com](https://global.gotowebinar.com/webinars.tmpl).
 
 You can setup a Direct authentication adapter like so:
 
-```php	
+```php
 $auth = new \Citrix\Auth\Direct('CONSUMER_KEY');
 $auth->setUsername('USERNAME')->setPassword('PASSWORD');
 ```
 
 You can retrieve the **APP Authentication Credentials** like this:
 
-```php	
+```php
 $auth->applyCredentials();
 $accessToken = $auth->getAccessToken(); //returns your access token
 $organizerKey = $auth->getOrganizerKey(); //returns the organizer key
 ```
 
-The code will handle all the authentication stuff for you, so you don't really have to worry about that. 
+The code will handle all the authentication stuff for you, so you don't really have to worry about that.
 
 
 ### OAUTH Authentication
-This is the best way to get data from *Citrix GoToWebinar Platform* for security (you don't store passwords) and speed (you don't need to authenticate at each request).  
-In order to use the **OAUTH Authentication** you need to give your own `username` and `password`.  
+This is the best way to get data from *Citrix GoToWebinar Platform* for security (you don't store passwords) and speed (you don't need to authenticate at each request).
+In order to use the **OAUTH Authentication** you need to give your own `username` and `password`.
 
 Here are the steps:
 
  - Grab the Url given from *Citrix GoToWebinar Platform* with the method `getAuthorizationLogonUrl()`
- - Follow the Url, you will be asked to insert the `username` and `password` 
+ - Follow the Url, you will be asked to insert the `username` and `password`
  - You will be redirected to the `CallbackURL`, it will be added of a `code`,
- - Grab the `code` which is the `responseKey` that is needed for getting the **APP Authentication Credentials** (`access_token` and `organizer_key`).  
+ - Grab the `code` which is the `responseKey` that is needed for getting the **APP Authentication Credentials** (`access_token` and `organizer_key`).
 You can get the needed with:
 
-```php	
+```php
 // start your application with an OAUth adapter
 $auth = new \Citrix\Auth\OAuth('CONSUMER_KEY');
 
@@ -105,7 +108,7 @@ The `applyCredentials()` is equivalent to:
 curl -X POST -H "Accept:application/json" -H "Content-Type: application/x-www-form-urlencoded" "https://api.getgo.com/oauth/access_token" -d 'grant_type=authorization_code&code={responseKey}&client_id={consumerKey}'
 ```
 
-Request parameters explanation:  
+Request parameters explanation:
 
 |Parameter |Description                              |Format|Required|
 |:---------|:----------------------------------------|:-----|:-------|
@@ -113,7 +116,7 @@ Request parameters explanation:
 |code      |responseKey from the redirect            |string|required|
 |client_id |the application client_id or Consumer Key|string|required|
 
-Response data Example:  
+Response data Example:
 
 ```json
 {
@@ -154,18 +157,18 @@ After authentication you can get all you need with the followings.
 ### Getting upcoming webinars
 In order to get all the upcoming webinars, you can write:
 
-```php	
-$citrix = new \Citrix\Citrix($auth); 
+```php
+$citrix = new \Citrix\Citrix($auth);
 $webinars = $citrix->getUpcoming();
 //this gives you all upcoming webinars
-var_dump($webinars); 
+var_dump($webinars);
 ```
 
 ### Creating a webinar
 In order to create a webinar, you can write:
-	
-```php	
-$citrix = new \Citrix\Citrix($auth); 
+
+```php
+$citrix = new \Citrix\Citrix($auth);
 $params = new Citrix\Entity\Webinar\Post();
 $params ->setSubject('My title')
         ->setDescription('My title')
@@ -181,16 +184,16 @@ All the conversions to UTC are handled by the Params objects.
 In order to get all the past webinars, you have to do this:
 
 ```php
-$citrix = new \Citrix\Citrix($auth); 
+$citrix = new \Citrix\Citrix($auth);
 $webinars = $citrix->getPast(new DateTime('-10 years'));
 //this gives you all upcoming webinars
-var_dump($webinars); 
+var_dump($webinars);
 ```
 
 If you would like to get the registration/join URL for a webinar you can do so like this:
 ```php
 $webinar = reset($webinars);
-$webinar->getRegistrationUrl(); 
+$webinar->getRegistrationUrl();
 ```
 
 ### Register a user for a webinar
@@ -208,12 +211,12 @@ $citrix->register($webinar->getWebinarKey(), $consumer);
 
 You can register a user for a webinar by providing the `webinarKey` and the Registrant for POST(ing) data like so:
 
-```php	
+```php
 $webinarKey = 123123;
 $consumer = new \Citrix\Entity\Registrant\Post();
 $consumer->setFirstName('Alan')->setLastName('Ford')->setEmail('alan.ford@example.com');
 
-$citrix = new \Citrix\Citrix($auth); 
+$citrix = new \Citrix\Citrix($auth);
 $citrix->register($webinarKey, $consumer);
 ```
  ### And many others...
